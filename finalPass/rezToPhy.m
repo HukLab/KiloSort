@@ -110,13 +110,16 @@ if ~isempty(savePath)
         writeNPY(similarTemplates, fullfile(savePath, 'similar_templates.npy'));
     end
     
-     %make params file
+    % Make params file
     if ~exist(fullfile(savePath,'params.py'),'file')
+        % include relative path elements in dat_path
+        [dat_path, fname, ext] = fileparts(rez.ops.fbinary);
+        dat_path = split(dat_path, filesep);
+        dat_path = fullfile( dat_path{find(strcmp(dat_path,'..'),1):end}, [fname ext]);
+        
         fid = fopen(fullfile(savePath,'params.py'), 'w');
-        
-        [~, fname, ext] = fileparts(rez.ops.fbinary);
-        
-        fprintf(fid,['dat_path = ''',fname ext '''\n']);
+        fprintf(fid,['dat_path = ''',dat_path '''\n']);
+        fprintf(fid,['dir_path = ''.',filesep '''\n']);  % keeps phy from wandering
         fprintf(fid,'n_channels_dat = %i\n',rez.ops.NchanTOT);
         fprintf(fid,'dtype = ''int16''\n');
         fprintf(fid,'offset = 0\n');
